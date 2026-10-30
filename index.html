@@ -3,20 +3,22 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blokkos C++ programozó</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arduino blokkprogramozó</title>
 
 <style>
+* { box-sizing: border-box; }
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
     background: #151923;
     color: white;
+    font-family: Arial, sans-serif;
 }
 
 header {
-    background: #252d3c;
-    padding: 18px;
+    padding: 20px;
+    background: #202b3b;
     text-align: center;
     font-size: 24px;
     font-weight: bold;
@@ -24,46 +26,68 @@ header {
 
 .container {
     display: grid;
-    grid-template-columns: 220px 1fr 1fr;
+    grid-template-columns: 230px 1fr 1fr;
     gap: 15px;
     padding: 15px;
 }
 
 .panel {
-    background: #252d3c;
-    border-radius: 12px;
+    background: #252e3d;
     padding: 15px;
-    min-height: 500px;
+    border-radius: 12px;
+    min-width: 0;
 }
 
-h3 {
-    color: #61dafb;
-}
+h3 { color: #61dafb; }
 
 .block {
-    padding: 13px;
-    margin: 10px 0;
+    padding: 12px;
+    margin: 9px 0;
     border-radius: 8px;
-    cursor: grab;
     font-weight: bold;
-    user-select: none;
 }
 
-.block:hover {
-    filter: brightness(1.2);
+.palette .block {
+    cursor: grab;
 }
 
-.print { background: #2675c9; }
-.variable { background: #9b59b6; }
-.input { background: #16a085; }
-.condition { background: #d68910; }
-.loop { background: #c0392b; }
-.math { background: #52677e; }
+.block input, .block select {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    border: 0;
+    border-radius: 5px;
+    background: #fff;
+    color: #111;
+}
+
+.block-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.block-title button {
+    background: #b83232;
+    padding: 5px 9px;
+}
+
+.pin { background: #7950a5; }
+.mode { background: #2876b9; }
+.write { background: #168d77; }
+.read { background: #167b91; }
+.serial { background: #b47a22; }
+.wait { background: #b34b46; }
+.variable { background: #526a9d; }
+.condition { background: #8c5d26; }
+.loop { background: #a04472; }
+.analog { background: #537d42; }
 
 .workspace {
     min-height: 400px;
-    border: 2px dashed #65758b;
-    border-radius: 10px;
+    border: 2px dashed #718096;
+    border-radius: 9px;
     padding: 10px;
 }
 
@@ -71,116 +95,138 @@ h3 {
     cursor: default;
 }
 
+.workspace .block.dragging {
+    opacity: .4;
+}
+
+.section {
+    border: 1px solid #586779;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+.section h4 { color: #61dafb; }
+
 button {
-    background: #16a085;
+    background: #168d77;
+    border: 0;
     color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 7px;
+    padding: 10px;
+    border-radius: 6px;
     cursor: pointer;
-    margin: 5px 2px;
+    margin: 4px 2px;
 }
 
-button:hover {
-    background: #1abc9c;
-}
-
-input {
-    width: 85%;
-    padding: 7px;
-    margin-top: 7px;
-    border-radius: 5px;
-    border: none;
-}
+button:hover { filter: brightness(1.2); }
 
 pre {
     background: #10141c;
-    color: #8ee8a1;
-    padding: 15px;
+    color: #9be6a6;
+    padding: 14px;
     border-radius: 8px;
+    min-height: 350px;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    min-height: 300px;
 }
 
-.delete {
-    float: right;
-    background: #c0392b;
-    padding: 5px 9px;
-}
-
-@media(max-width: 800px) {
-    .container {
-        grid-template-columns: 1fr;
-    }
+@media(max-width: 850px) {
+    .container { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 
 <body>
 
-<header>🧩 Blokkos C++ programozó</header>
+<header>🔌 Arduino blokkprogramozó</header>
 
 <div class="container">
 
-<!-- BLOKKOK -->
-<div class="panel">
-<h3>Blokkok</h3>
+<!-- BLOKKLISTA -->
+<div class="panel palette">
+<h3>🧩 Blokkok</h3>
+<p>Húzd a kívánt blokkot a munkaterületre!</p>
 
-<div class="block print" draggable="true"
-data-type="print">
-📢 Kiírás (cout)
+<div class="block pin" draggable="true" data-type="pin">
+📌 Pin definiálása
 </div>
 
-<div class="block variable" draggable="true"
-data-type="variable">
-📦 Változó létrehozása
+<div class="block mode" draggable="true" data-type="mode">
+⚙️ Pin módja (INPUT / OUTPUT)
 </div>
 
-<div class="block input" draggable="true"
-data-type="input">
-⌨️ Bekérés (cin)
+<div class="block write" draggable="true" data-type="write">
+🔴 Pin HIGH / LOW
 </div>
 
-<div class="block condition" draggable="true"
-data-type="condition">
-❓ Feltétel (if)
+<div class="block read" draggable="true" data-type="read">
+📥 Digitális pin olvasása
 </div>
 
-<div class="block loop" draggable="true"
-data-type="loop">
-🔁 Ciklus (for)
+<div class="block analog" draggable="true" data-type="analog">
+🎚️ Analóg kimenet (PWM)
 </div>
 
-<div class="block math" draggable="true"
-data-type="math">
-➕ Összeadás
+<div class="block serial" draggable="true" data-type="begin">
+🖥️ Serial indítása
+</div>
+
+<div class="block serial" draggable="true" data-type="print">
+📢 Serial kiírás
+</div>
+
+<div class="block wait" draggable="true" data-type="delay">
+⏱️ Várakozás (delay)
+</div>
+
+<div class="block variable" draggable="true" data-type="variable">
+📦 Változó definiálása
+</div>
+
+<div class="block condition" draggable="true" data-type="condition">
+❓ IF feltétel
+</div>
+
+<div class="block loop" draggable="true" data-type="for">
+🔁 FOR ciklus
 </div>
 
 </div>
 
 <!-- MUNKATERÜLET -->
 <div class="panel">
-<h3>Programod</h3>
+<h3>🛠️ Programod</h3>
 
 <div class="workspace" id="workspace">
-<p style="color:#aaa">
-Húzd ide a programozási blokkokat!
-</p>
+
+<div class="section" data-section="global">
+<h4>Globális definíciók</h4>
+<div class="dropzone"></div>
 </div>
 
-<button onclick="generate()">C++ kód generálása</button>
-<button onclick="clearAll()">Törlés</button>
+<div class="section" data-section="setup">
+<h4>Setup() - induláskor egyszer fut</h4>
+<div class="dropzone"></div>
+</div>
+
+<div class="section" data-section="loop">
+<h4>Loop() - folyamatosan ismétlődik</h4>
+<div class="dropzone"></div>
+</div>
+
+</div>
+
+<button onclick="generate()">⚡ C++ generálása</button>
+<button onclick="clearAll()">🗑️ Törlés</button>
 </div>
 
 <!-- KÓD -->
 <div class="panel">
-<h3>Generált C++ kód</h3>
+<h3>💻 Arduino C++ kód</h3>
+<pre id="code">// Itt jelenik meg a programod.</pre>
 
-<pre id="code">// Itt jelenik meg a C++ kód.</pre>
-
-<button onclick="copyCode()">Kód másolása</button>
-<button onclick="downloadCode()">.cpp letöltése</button>
+<button onclick="copyCode()">📋 Másolás</button>
+<button onclick="downloadCode()">⬇️ .ino letöltése</button>
 </div>
 
 </div>
@@ -188,200 +234,387 @@ Húzd ide a programozási blokkokat!
 <script>
 const workspace = document.getElementById("workspace");
 
-let blocks = [];
-
 const templates = {
-    print: {
-        title: "Kiírás",
-        fields: [
-            {name: "text", placeholder: "Kiírandó szöveg", value: "Hello Világ!"}
-        ]
-    },
+ pin: {
+  title:"Pin definiálása",
+  section:"global",
+  fields:[
+   {name:"name",label:"Pin neve",value:"LED_PIN"},
+   {name:"number",label:"Pin száma",value:"13"}
+  ]
+ },
 
-    variable: {
-        title: "Változó",
-        fields: [
-            {name: "name", placeholder: "Változó neve", value: "szam"},
-            {name: "value", placeholder: "Kezdőérték", value: "10"}
-        ]
-    },
+ mode: {
+  title:"Pin módja",
+  section:"setup",
+  fields:[
+   {name:"pin",label:"Pin neve vagy száma",value:"LED_PIN"},
+   {name:"mode",label:"Mód",value:"OUTPUT",
+    options:["OUTPUT","INPUT","INPUT_PULLUP"]}
+  ]
+ },
 
-    input: {
-        title: "Bekérés",
-        fields: [
-            {name: "name", placeholder: "Változó neve", value: "szam"}
-        ]
-    },
+ write: {
+  title:"Digitális kimenet",
+  section:"loop",
+  fields:[
+   {name:"pin",label:"Pin neve",value:"LED_PIN"},
+   {name:"state",label:"Állapot",value:"HIGH",
+    options:["HIGH","LOW"]}
+  ]
+ },
 
-    condition: {
-        title: "Feltétel",
-        fields: [
-            {name: "condition", placeholder: "Feltétel", value: "szam > 5"},
-            {name: "text", placeholder: "Kiírandó szöveg", value: "Nagyobb mint 5"}
-        ]
-    },
+ read: {
+  title:"Digitális bemenet olvasása",
+  section:"loop",
+  fields:[
+   {name:"pin",label:"Pin neve",value:"BUTTON_PIN"},
+   {name:"variable",label:"Tároló változó",value:"buttonState"}
+  ]
+ },
 
-    loop: {
-        title: "For ciklus",
-        fields: [
-            {name: "count", placeholder: "Ismétlések száma", value: "5"}
-        ]
-    },
+ analog: {
+  title:"Analóg PWM kimenet",
+  section:"loop",
+  fields:[
+   {name:"pin",label:"Pin neve",value:"LED_PIN"},
+   {name:"value",label:"Érték (0-255)",value:"128"}
+  ]
+ },
 
-    math: {
-        title: "Összeadás",
-        fields: [
-            {name: "a", placeholder: "Első szám", value: "5"},
-            {name: "b", placeholder: "Második szám", value: "10"}
-        ]
-    }
+ begin: {
+  title:"Serial indítása",
+  section:"setup",
+  fields:[
+   {name:"baud",label:"Baud rate",value:"9600",
+    options:["9600","19200","38400","57600","115200"]}
+  ]
+ },
+
+ print: {
+  title:"Serial kiírás",
+  section:"loop",
+  fields:[
+   {name:"text",label:"Kiírandó szöveg",value:"Hello Arduino!"},
+   {name:"type",label:"Kiírás típusa",value:"println",
+    options:["print","println"]}
+  ]
+ },
+
+ delay: {
+  title:"Várakozás",
+  section:"loop",
+  fields:[
+   {name:"time",label:"Idő milliszekundumban",value:"1000"}
+  ]
+ },
+
+ variable: {
+  title:"Változó",
+  section:"global",
+  fields:[
+   {name:"type",label:"Adattípus",value:"int",
+    options:["int","float","bool","String"]},
+   {name:"name",label:"Név",value:"szam"},
+   {name:"value",label:"Érték",value:"0"}
+  ]
+ },
+
+ condition: {
+  title:"IF feltétel",
+  section:"loop",
+  fields:[
+   {name:"condition",label:"Feltétel",value:"buttonState == HIGH"}
+  ]
+ },
+
+ for: {
+  title:"FOR ciklus",
+  section:"loop",
+  fields:[
+   {name:"count",label:"Ismétlések száma",value:"5"}
+  ]
+ }
 };
 
-document.querySelectorAll(".block[draggable=true]")
-.forEach(block => {
-    block.addEventListener("dragstart", e => {
-        e.dataTransfer.setData(
-            "type", block.dataset.type
-        );
-    });
+let blocks = [];
+let nextId = 1;
+
+function addBlock(type, section) {
+ if (!templates[type]) return;
+
+ const t = templates[type];
+
+ blocks.push({
+  id:nextId++,
+  type,
+  section:section || t.section,
+  values:Object.fromEntries(
+   t.fields.map(f=>[f.name,f.value])
+  )
+ });
+
+ render();
+}
+
+document.querySelectorAll(".palette .block").forEach(el=>{
+ el.addEventListener("dragstart",e=>{
+  e.dataTransfer.setData("type",el.dataset.type);
+ });
 });
 
-workspace.addEventListener("dragover", e => {
-    e.preventDefault();
-});
+document.querySelectorAll(".dropzone").forEach(zone=>{
+ zone.addEventListener("dragover",e=>e.preventDefault());
 
-workspace.addEventListener("drop", e => {
-    e.preventDefault();
+ zone.addEventListener("drop",e=>{
+  e.preventDefault();
 
-    const type = e.dataTransfer.getData("type");
+  const id=e.dataTransfer.getData("blockId");
 
-    if (!templates[type]) return;
-
-    blocks.push({
-        id: Date.now() + Math.random(),
-        type: type,
-        values: Object.fromEntries(
-            templates[type].fields.map(f => [f.name, f.value])
-        )
-    });
-
+  if(id) {
+   const b=blocks.find(x=>x.id===Number(id));
+   if(b) {
+    b.section=zone.parentElement.dataset.section;
     render();
+   }
+  } else {
+   addBlock(
+    e.dataTransfer.getData("type"),
+    zone.parentElement.dataset.section
+   );
+  }
+ });
 });
 
 function render() {
-    workspace.innerHTML = "";
+ document.querySelectorAll(".dropzone").forEach(z=>{
+  z.innerHTML="";
+ });
 
-    blocks.forEach((block, index) => {
-        const template = templates[block.type];
+ blocks.forEach(b=>{
+  const t=templates[b.type];
+  const zone=document.querySelector(
+   '[data-section="'+b.section+'"] .dropzone'
+  );
 
-        const div = document.createElement("div");
-        div.className = "block " + block.type;
+  const el=document.createElement("div");
+  el.className="block "+b.type;
+  el.draggable=true;
 
-        const title = document.createElement("strong");
-        title.textContent = template.title;
-        div.appendChild(title);
+  el.addEventListener("dragstart",e=>{
+   e.dataTransfer.setData("blockId",String(b.id));
+   el.classList.add("dragging");
+  });
 
-        const remove = document.createElement("button");
-        remove.className = "delete";
-        remove.textContent = "X";
-        remove.onclick = () => {
-            blocks.splice(index, 1);
-            render();
-        };
-        div.appendChild(remove);
+  el.addEventListener("dragend",()=>{
+   el.classList.remove("dragging");
+  });
 
-        template.fields.forEach(field => {
-            const input = document.createElement("input");
+  const title=document.createElement("div");
+  title.className="block-title";
 
-            input.placeholder = field.placeholder;
-            input.value = block.values[field.name];
+  const strong=document.createElement("strong");
+  strong.textContent=t.title;
 
-            input.oninput = () => {
-                block.values[field.name] = input.value;
-            };
+  const del=document.createElement("button");
+  del.textContent="X";
+  del.onclick=()=>{
+   blocks=blocks.filter(x=>x.id!==b.id);
+   render();
+  };
 
-            div.appendChild(input);
-        });
+  title.append(strong,del);
+  el.appendChild(title);
 
-        workspace.appendChild(div);
+  t.fields.forEach(f=>{
+   const label=document.createElement("label");
+   label.textContent=f.label;
+
+   let input;
+
+   if(f.options) {
+    input=document.createElement("select");
+    f.options.forEach(opt=>{
+     const option=document.createElement("option");
+     option.value=opt;
+     option.textContent=opt;
+     input.appendChild(option);
     });
+   } else {
+    input=document.createElement("input");
+    input.type="text";
+   }
+
+   input.value=b.values[f.name];
+
+   input.onchange=()=>{
+    b.values[f.name]=input.value;
+   };
+
+   label.appendChild(input);
+   el.appendChild(label);
+  });
+
+  zone.appendChild(el);
+ });
+}
+
+function identifier(s) {
+ return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(s);
 }
 
 function generate() {
-    let result = "#include <iostream>\n";
-    result += "using namespace std;\n\n";
-    result += "int main() {\n";
+ let globalCode=[];
+ let setupCode=[];
+ let loopCode=[];
+ let errors=[];
 
-    blocks.forEach(block => {
-        const v = block.values;
+ function add(section,line) {
+  if(section==="global") globalCode.push(line);
+  if(section==="setup") setupCode.push(line);
+  if(section==="loop") loopCode.push(line);
+ }
 
-        switch(block.type) {
+ blocks.forEach(b=>{
+  const v=b.values;
 
-            case "print":
-                result += `    cout << "${v.text}" << endl;\n`;
-                break;
+  switch(b.type) {
+   case "pin":
+    if(!identifier(v.name) || !/^\d+$/.test(v.number)) {
+     errors.push("Hibás pin definíció: "+v.name);
+    } else {
+     add("global",`const int ${v.name} = ${v.number};`);
+    }
+    break;
 
-            case "variable":
-                result += `    int ${v.name} = ${v.value};\n`;
-                break;
+   case "mode":
+    add("setup",`pinMode(${v.pin}, ${v.mode});`);
+    break;
 
-            case "input":
-                result += `    cin >> ${v.name};\n`;
-                break;
+   case "write":
+    add("loop",`digitalWrite(${v.pin}, ${v.state});`);
+    break;
 
-            case "condition":
-                result += `    if (${v.condition}) {\n`;
-                result += `        cout << "${v.text}" << endl;\n`;
-                result += "    }\n";
-                break;
+   case "read":
+    if(!identifier(v.variable)) {
+     errors.push("Hibás változónév: "+v.variable);
+    } else {
+     add("loop",`int ${v.variable} = digitalRead(${v.pin});`);
+    }
+    break;
 
-            case "loop":
-                result += `    for (int i = 0; i < ${v.count}; i++) {\n`;
-                result += '        cout << "Ismetles: " << i + 1 << endl;\n';
-                result += "    }\n";
-                break;
+   case "analog":
+    if(!/^\d+$/.test(v.value) ||
+       Number(v.value)<0 || Number(v.value)>255) {
+     errors.push("A PWM értéknek 0 és 255 között kell lennie.");
+    } else {
+     add("loop",`analogWrite(${v.pin}, ${v.value});`);
+    }
+    break;
 
-            case "math":
-                result += `    cout << (${v.a} + ${v.b}) << endl;\n`;
-                break;
-        }
-    });
+   case "begin":
+    add("setup",`Serial.begin(${v.baud});`);
+    break;
 
-    result += "\n    return 0;\n";
-    result += "}\n";
+   case "print":
+    add("loop",`Serial.${v.type}(${JSON.stringify(v.text)});`);
+    break;
 
-    document.getElementById("code").textContent = result;
+   case "delay":
+    if(!/^\d+$/.test(v.time)) {
+     errors.push("Hibás delay érték.");
+    } else {
+     add("loop",`delay(${v.time});`);
+    }
+    break;
+
+   case "variable":
+    if(!identifier(v.name)) {
+     errors.push("Hibás változónév: "+v.name);
+    } else {
+     const value=v.type==="String"
+      ? JSON.stringify(v.value)
+      : v.value;
+     add("global",`${v.type} ${v.name} = ${value};`);
+    }
+    break;
+
+   case "condition":
+    add("loop",`if (${v.condition}) {\n  // Ide kerülhet további kód\n}`);
+    break;
+
+   case "for":
+    if(!/^\d+$/.test(v.count)) {
+     errors.push("Hibás ciklusszám.");
+    } else {
+     add("loop",
+      `for (int i = 0; i < ${v.count}; i++) {\n  // Ciklus tartalma\n}`
+     );
+    }
+    break;
+  }
+ });
+
+ if(errors.length) {
+  alert(errors.join("\n"));
+  return;
+ }
+
+ let code="";
+
+ if(globalCode.length) {
+  code+=globalCode.join("\n")+"\n\n";
+ }
+
+ code+="void setup() {\n";
+
+ if(setupCode.length) {
+  code+=setupCode.map(x=>"  "+x).join("\n")+"\n";
+ }
+
+ code+="}\n\nvoid loop() {\n";
+
+ if(loopCode.length) {
+  code+=loopCode.map(x=>
+   "  "+x.replace(/\n/g,"\n  ")
+  ).join("\n")+"\n";
+ }
+
+ code+="}\n";
+
+ document.getElementById("code").textContent=code;
 }
 
 function clearAll() {
-    blocks = [];
-    render();
-    document.getElementById("code").textContent =
-        "// Itt jelenik meg a C++ kód.";
+ if(!confirm("Biztosan törlöd az összes blokkot?")) return;
+ blocks=[];
+ render();
+ document.getElementById("code").textContent=
+  "// Itt jelenik meg a programod.";
 }
 
 function copyCode() {
-    navigator.clipboard.writeText(
-        document.getElementById("code").textContent
-    ).then(() => alert("A kód másolva!"));
+ const code=document.getElementById("code").textContent;
+
+ navigator.clipboard.writeText(code)
+ .then(()=>alert("A kód másolva!"))
+ .catch(()=>alert("Nem sikerült a másolás."));
 }
 
 function downloadCode() {
-    const code = document.getElementById("code").textContent;
+ const code=document.getElementById("code").textContent;
+ const blob=new Blob([code],{type:"text/plain"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
 
-    const blob = new Blob([code], {
-        type: "text/plain"
-    });
+ a.href=url;
+ a.download="Arduino_program.ino";
+ a.click();
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-
-    a.href = url;
-    a.download = "program.cpp";
-    a.click();
-
-    URL.revokeObjectURL(url);
+ URL.revokeObjectURL(url);
 }
+
+render();
 </script>
 
 </body>
