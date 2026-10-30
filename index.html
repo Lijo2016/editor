@@ -7,131 +7,157 @@
 <title>Arduino blokkprogramozó</title>
 
 <style>
-* { box-sizing: border-box; }
+* { box-sizing:border-box; }
 
 body {
-    margin: 0;
-    background: #151923;
-    color: white;
-    font-family: Arial, sans-serif;
+ margin:0;
+ background:#151923;
+ color:white;
+ font-family:Arial,sans-serif;
 }
 
 header {
-    padding: 20px;
-    background: #202b3b;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
+ background:#202b3b;
+ padding:20px;
+ text-align:center;
+ font-size:24px;
+ font-weight:bold;
 }
 
 .container {
-    display: grid;
-    grid-template-columns: 230px 1fr 1fr;
-    gap: 15px;
-    padding: 15px;
+ display:grid;
+ grid-template-columns:220px 1fr 1fr;
+ gap:15px;
+ padding:15px;
 }
 
 .panel {
-    background: #252e3d;
-    padding: 15px;
-    border-radius: 12px;
-    min-width: 0;
+ background:#252e3d;
+ padding:15px;
+ border-radius:12px;
+ min-width:0;
 }
 
-h3 { color: #61dafb; }
+h3 { color:#61dafb; }
 
 .block {
-    padding: 12px;
-    margin: 9px 0;
-    border-radius: 8px;
-    font-weight: bold;
+ padding:12px;
+ margin:9px 0;
+ border-radius:8px;
+ font-weight:bold;
 }
 
 .palette .block {
-    cursor: grab;
+ cursor:pointer;
+ user-select:none;
 }
 
-.block input, .block select {
-    display: block;
-    width: 100%;
-    margin-top: 8px;
-    padding: 8px;
-    border: 0;
-    border-radius: 5px;
-    background: #fff;
-    color: #111;
+.palette .block:active {
+ opacity:.65;
+}
+
+.block input,.block select {
+ display:block;
+ width:100%;
+ margin-top:8px;
+ padding:9px;
+ border:0;
+ border-radius:5px;
+ background:white;
+ color:#111;
 }
 
 .block-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:8px;
 }
 
 .block-title button {
-    background: #b83232;
-    padding: 5px 9px;
+ background:#b83232;
+ padding:6px 10px;
 }
 
-.pin { background: #7950a5; }
-.mode { background: #2876b9; }
-.write { background: #168d77; }
-.read { background: #167b91; }
-.serial { background: #b47a22; }
-.wait { background: #b34b46; }
-.variable { background: #526a9d; }
-.condition { background: #8c5d26; }
-.loop { background: #a04472; }
-.analog { background: #537d42; }
+.pin {background:#7950a5;}
+.mode {background:#2876b9;}
+.write {background:#168d77;}
+.read {background:#167b91;}
+.serial {background:#b47a22;}
+.wait {background:#b34b46;}
+.variable {background:#526a9d;}
+.condition {background:#8c5d26;}
+.loop {background:#a04472;}
+.analog {background:#537d42;}
 
 .workspace {
-    min-height: 400px;
-    border: 2px dashed #718096;
-    border-radius: 9px;
-    padding: 10px;
-}
-
-.workspace .block {
-    cursor: default;
-}
-
-.workspace .block.dragging {
-    opacity: .4;
+ min-height:400px;
+ border:2px dashed #718096;
+ border-radius:9px;
+ padding:10px;
 }
 
 .section {
-    border: 1px solid #586779;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 8px;
+ border:1px solid #586779;
+ padding:10px;
+ margin-bottom:15px;
+ border-radius:8px;
 }
 
-.section h4 { color: #61dafb; }
+.section h4 {color:#61dafb;}
+
+.dropzone {
+ min-height:45px;
+}
+
+.dropzone:empty::after {
+ content:"Ide helyezd a blokkokat!";
+ color:#8291a5;
+ font-size:13px;
+}
 
 button {
-    background: #168d77;
-    border: 0;
-    color: white;
-    padding: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin: 4px 2px;
+ background:#168d77;
+ border:0;
+ color:white;
+ padding:10px;
+ border-radius:6px;
+ cursor:pointer;
+ margin:4px 2px;
 }
 
-button:hover { filter: brightness(1.2); }
+button:hover {filter:brightness(1.2);}
 
 pre {
-    background: #10141c;
-    color: #9be6a6;
-    padding: 14px;
-    border-radius: 8px;
-    min-height: 350px;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
+ background:#10141c;
+ color:#9be6a6;
+ padding:14px;
+ border-radius:8px;
+ min-height:350px;
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
 }
 
-@media(max-width: 850px) {
-    .container { grid-template-columns: 1fr; }
+.palette {
+ position:relative;
+}
+
+@media(max-width:850px) {
+ .container {
+  grid-template-columns:1fr;
+ }
+ .palette {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+ }
+ .palette h3,.palette p {
+  grid-column:1/-1;
+ }
+ .palette .block {
+  font-size:13px;
+  text-align:center;
+ }
 }
 </style>
 </head>
@@ -142,21 +168,20 @@ pre {
 
 <div class="container">
 
-<!-- BLOKKLISTA -->
 <div class="panel palette">
 <h3>🧩 Blokkok</h3>
-<p>Húzd a kívánt blokkot a munkaterületre!</p>
+<p>Koppints egy blokkra vagy húzd a munkaterületre!</p>
 
 <div class="block pin" draggable="true" data-type="pin">
 📌 Pin definiálása
 </div>
 
 <div class="block mode" draggable="true" data-type="mode">
-⚙️ Pin módja (INPUT / OUTPUT)
+⚙️ Pin módja
 </div>
 
 <div class="block write" draggable="true" data-type="write">
-🔴 Pin HIGH / LOW
+🔴 HIGH / LOW
 </div>
 
 <div class="block read" draggable="true" data-type="read">
@@ -164,7 +189,7 @@ pre {
 </div>
 
 <div class="block analog" draggable="true" data-type="analog">
-🎚️ Analóg kimenet (PWM)
+🎚️ Analóg PWM
 </div>
 
 <div class="block serial" draggable="true" data-type="begin">
@@ -176,11 +201,11 @@ pre {
 </div>
 
 <div class="block wait" draggable="true" data-type="delay">
-⏱️ Várakozás (delay)
+⏱️ Várakozás
 </div>
 
 <div class="block variable" draggable="true" data-type="variable">
-📦 Változó definiálása
+📦 Változó
 </div>
 
 <div class="block condition" draggable="true" data-type="condition">
@@ -193,9 +218,8 @@ pre {
 
 </div>
 
-<!-- MUNKATERÜLET -->
 <div class="panel">
-<h3>🛠️ Programod</h3>
+<h3>🛠️ Munkaterület</h3>
 
 <div class="workspace" id="workspace">
 
@@ -220,9 +244,9 @@ pre {
 <button onclick="clearAll()">🗑️ Törlés</button>
 </div>
 
-<!-- KÓD -->
 <div class="panel">
 <h3>💻 Arduino C++ kód</h3>
+
 <pre id="code">// Itt jelenik meg a programod.</pre>
 
 <button onclick="copyCode()">📋 Másolás</button>
@@ -232,170 +256,205 @@ pre {
 </div>
 
 <script>
-const workspace = document.getElementById("workspace");
 
-const templates = {
- pin: {
-  title:"Pin definiálása",
-  section:"global",
-  fields:[
-   {name:"name",label:"Pin neve",value:"LED_PIN"},
-   {name:"number",label:"Pin száma",value:"13"}
-  ]
- },
+const workspace=document.getElementById("workspace");
 
- mode: {
-  title:"Pin módja",
-  section:"setup",
-  fields:[
-   {name:"pin",label:"Pin neve vagy száma",value:"LED_PIN"},
-   {name:"mode",label:"Mód",value:"OUTPUT",
-    options:["OUTPUT","INPUT","INPUT_PULLUP"]}
-  ]
- },
+const templates={
 
- write: {
-  title:"Digitális kimenet",
-  section:"loop",
-  fields:[
-   {name:"pin",label:"Pin neve",value:"LED_PIN"},
-   {name:"state",label:"Állapot",value:"HIGH",
-    options:["HIGH","LOW"]}
-  ]
- },
+pin:{
+ title:"📌 Pin definiálása",
+ section:"global",
+ fields:[
+  {name:"name",label:"Pin neve",value:"LED_PIN"},
+  {name:"number",label:"Pin száma",value:"13"}
+ ]
+},
 
- read: {
-  title:"Digitális bemenet olvasása",
-  section:"loop",
-  fields:[
-   {name:"pin",label:"Pin neve",value:"BUTTON_PIN"},
-   {name:"variable",label:"Tároló változó",value:"buttonState"}
-  ]
- },
+mode:{
+ title:"⚙️ Pin módja",
+ section:"setup",
+ fields:[
+  {name:"pin",label:"Pin neve",value:"LED_PIN"},
+  {name:"mode",label:"Mód",value:"OUTPUT",
+   options:["OUTPUT","INPUT","INPUT_PULLUP"]}
+ ]
+},
 
- analog: {
-  title:"Analóg PWM kimenet",
-  section:"loop",
-  fields:[
-   {name:"pin",label:"Pin neve",value:"LED_PIN"},
-   {name:"value",label:"Érték (0-255)",value:"128"}
-  ]
- },
+write:{
+ title:"🔴 Digitális kimenet",
+ section:"loop",
+ fields:[
+  {name:"pin",label:"Pin neve",value:"LED_PIN"},
+  {name:"state",label:"Állapot",value:"HIGH",
+   options:["HIGH","LOW"]}
+ ]
+},
 
- begin: {
-  title:"Serial indítása",
-  section:"setup",
-  fields:[
-   {name:"baud",label:"Baud rate",value:"9600",
-    options:["9600","19200","38400","57600","115200"]}
-  ]
- },
+read:{
+ title:"📥 Digitális bemenet",
+ section:"loop",
+ fields:[
+  {name:"pin",label:"Pin neve",value:"BUTTON_PIN"},
+  {name:"variable",label:"Tároló változó",value:"buttonState"}
+ ]
+},
 
- print: {
-  title:"Serial kiírás",
-  section:"loop",
-  fields:[
-   {name:"text",label:"Kiírandó szöveg",value:"Hello Arduino!"},
-   {name:"type",label:"Kiírás típusa",value:"println",
-    options:["print","println"]}
-  ]
- },
+analog:{
+ title:"🎚️ PWM kimenet",
+ section:"loop",
+ fields:[
+  {name:"pin",label:"Pin neve",value:"LED_PIN"},
+  {name:"value",label:"Érték (0-255)",value:"128"}
+ ]
+},
 
- delay: {
-  title:"Várakozás",
-  section:"loop",
-  fields:[
-   {name:"time",label:"Idő milliszekundumban",value:"1000"}
-  ]
- },
+begin:{
+ title:"🖥️ Serial indítása",
+ section:"setup",
+ fields:[
+  {name:"baud",label:"Baud rate",value:"9600",
+   options:["9600","19200","38400","57600","115200"]}
+ ]
+},
 
- variable: {
-  title:"Változó",
-  section:"global",
-  fields:[
-   {name:"type",label:"Adattípus",value:"int",
-    options:["int","float","bool","String"]},
-   {name:"name",label:"Név",value:"szam"},
-   {name:"value",label:"Érték",value:"0"}
-  ]
- },
+print:{
+ title:"📢 Serial kiírás",
+ section:"loop",
+ fields:[
+  {name:"text",label:"Szöveg",value:"Hello Arduino!"},
+  {name:"type",label:"Típus",value:"println",
+   options:["print","println"]}
+ ]
+},
 
- condition: {
-  title:"IF feltétel",
-  section:"loop",
-  fields:[
-   {name:"condition",label:"Feltétel",value:"buttonState == HIGH"}
-  ]
- },
+delay:{
+ title:"⏱️ Várakozás",
+ section:"loop",
+ fields:[
+  {name:"time",label:"Milliszekundum",value:"1000"}
+ ]
+},
 
- for: {
-  title:"FOR ciklus",
-  section:"loop",
-  fields:[
-   {name:"count",label:"Ismétlések száma",value:"5"}
-  ]
- }
+variable:{
+ title:"📦 Változó",
+ section:"global",
+ fields:[
+  {name:"type",label:"Adattípus",value:"int",
+   options:["int","float","bool","String"]},
+  {name:"name",label:"Név",value:"szam"},
+  {name:"value",label:"Érték",value:"0"}
+ ]
+},
+
+condition:{
+ title:"❓ IF feltétel",
+ section:"loop",
+ fields:[
+  {name:"condition",label:"Feltétel",value:"buttonState == HIGH"}
+ ]
+},
+
+for:{
+ title:"🔁 FOR ciklus",
+ section:"loop",
+ fields:[
+  {name:"count",label:"Ismétlések száma",value:"5"}
+ ]
+}
+
 };
 
-let blocks = [];
-let nextId = 1;
+let blocks=[];
+let nextId=1;
 
-function addBlock(type, section) {
- if (!templates[type]) return;
+function addBlock(type,section){
 
- const t = templates[type];
+ if(!templates[type])return;
+
+ const t=templates[type];
 
  blocks.push({
   id:nextId++,
-  type,
-  section:section || t.section,
+  type:type,
+  section:section||t.section,
   values:Object.fromEntries(
    t.fields.map(f=>[f.name,f.value])
   )
  });
 
  render();
+
 }
 
 document.querySelectorAll(".palette .block").forEach(el=>{
+
+ // Egérrel húzás
  el.addEventListener("dragstart",e=>{
   e.dataTransfer.setData("type",el.dataset.type);
  });
-});
 
-document.querySelectorAll(".dropzone").forEach(zone=>{
- zone.addEventListener("dragover",e=>e.preventDefault());
-
- zone.addEventListener("drop",e=>{
-  e.preventDefault();
-
-  const id=e.dataTransfer.getData("blockId");
-
-  if(id) {
-   const b=blocks.find(x=>x.id===Number(id));
-   if(b) {
-    b.section=zone.parentElement.dataset.section;
-    render();
-   }
-  } else {
-   addBlock(
-    e.dataTransfer.getData("type"),
-    zone.parentElement.dataset.section
-   );
-  }
+ // Telefonon koppintás
+ el.addEventListener("click",()=>{
+  addBlock(el.dataset.type);
  });
+
 });
 
-function render() {
+// Munkaterületek beállítása
+function setupDropzones(){
+
+ document.querySelectorAll(".dropzone").forEach(zone=>{
+
+  zone.addEventListener("dragover",e=>{
+   e.preventDefault();
+  });
+
+  zone.addEventListener("drop",e=>{
+   e.preventDefault();
+
+   const id=e.dataTransfer.getData("blockId");
+   const section=zone.parentElement.dataset.section;
+
+   if(id){
+
+    const b=blocks.find(x=>x.id===Number(id));
+
+    if(b){
+     b.section=section;
+     render();
+    }
+
+   }else{
+
+    const type=e.dataTransfer.getData("type");
+
+    if(type)addBlock(type,section);
+
+   }
+
+  });
+
+ });
+
+}
+
+setupDropzones();
+
+function render(){
+
  document.querySelectorAll(".dropzone").forEach(z=>{
   z.innerHTML="";
  });
 
  blocks.forEach(b=>{
+
   const t=templates[b.type];
+
   const zone=document.querySelector(
    '[data-section="'+b.section+'"] .dropzone'
   );
+
+  if(!zone)return;
 
   const el=document.createElement("div");
   el.className="block "+b.type;
@@ -403,11 +462,6 @@ function render() {
 
   el.addEventListener("dragstart",e=>{
    e.dataTransfer.setData("blockId",String(b.id));
-   el.classList.add("dragging");
-  });
-
-  el.addEventListener("dragend",()=>{
-   el.classList.remove("dragging");
   });
 
   const title=document.createElement("div");
@@ -418,6 +472,7 @@ function render() {
 
   const del=document.createElement("button");
   del.textContent="X";
+
   del.onclick=()=>{
    blocks=blocks.filter(x=>x.id!==b.id);
    render();
@@ -427,22 +482,28 @@ function render() {
   el.appendChild(title);
 
   t.fields.forEach(f=>{
+
    const label=document.createElement("label");
    label.textContent=f.label;
 
    let input;
 
-   if(f.options) {
+   if(f.options){
+
     input=document.createElement("select");
+
     f.options.forEach(opt=>{
      const option=document.createElement("option");
      option.value=opt;
      option.textContent=opt;
      input.appendChild(option);
     });
-   } else {
+
+   }else{
+
     input=document.createElement("input");
     input.type="text";
+
    }
 
    input.value=b.values[f.name];
@@ -453,169 +514,212 @@ function render() {
 
    label.appendChild(input);
    el.appendChild(label);
+
   });
 
   zone.appendChild(el);
+
  });
+
 }
 
-function identifier(s) {
- return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(s);
-}
+// Kódgenerálás
+function generate(){
 
-function generate() {
  let globalCode=[];
  let setupCode=[];
  let loopCode=[];
  let errors=[];
 
- function add(section,line) {
-  if(section==="global") globalCode.push(line);
-  if(section==="setup") setupCode.push(line);
-  if(section==="loop") loopCode.push(line);
+ function add(section,line){
+
+  if(section==="global")globalCode.push(line);
+  if(section==="setup")setupCode.push(line);
+  if(section==="loop")loopCode.push(line);
+
  }
 
  blocks.forEach(b=>{
+
   const v=b.values;
 
-  switch(b.type) {
+  switch(b.type){
+
    case "pin":
-    if(!identifier(v.name) || !/^\d+$/.test(v.number)) {
-     errors.push("Hibás pin definíció: "+v.name);
-    } else {
+
+    if(!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v.name) ||
+       !/^\d+$/.test(v.number)){
+     errors.push("Hibás pin definíció.");
+    }else{
      add("global",`const int ${v.name} = ${v.number};`);
     }
+
     break;
 
    case "mode":
+
     add("setup",`pinMode(${v.pin}, ${v.mode});`);
+
     break;
 
    case "write":
+
     add("loop",`digitalWrite(${v.pin}, ${v.state});`);
+
     break;
 
    case "read":
-    if(!identifier(v.variable)) {
-     errors.push("Hibás változónév: "+v.variable);
-    } else {
+
+    if(!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v.variable)){
+     errors.push("Hibás változónév.");
+    }else{
      add("loop",`int ${v.variable} = digitalRead(${v.pin});`);
     }
+
     break;
 
    case "analog":
+
     if(!/^\d+$/.test(v.value) ||
-       Number(v.value)<0 || Number(v.value)>255) {
-     errors.push("A PWM értéknek 0 és 255 között kell lennie.");
-    } else {
+       Number(v.value)<0 || Number(v.value)>255){
+     errors.push("A PWM értéknek 0-255 között kell lennie.");
+    }else{
      add("loop",`analogWrite(${v.pin}, ${v.value});`);
     }
+
     break;
 
    case "begin":
+
     add("setup",`Serial.begin(${v.baud});`);
+
     break;
 
    case "print":
-    add("loop",`Serial.${v.type}(${JSON.stringify(v.text)});`);
+
+    add("loop",
+     `Serial.${v.type}(${JSON.stringify(v.text)});`
+    );
+
     break;
 
    case "delay":
-    if(!/^\d+$/.test(v.time)) {
+
+    if(!/^\d+$/.test(v.time)){
      errors.push("Hibás delay érték.");
-    } else {
+    }else{
      add("loop",`delay(${v.time});`);
     }
+
     break;
 
    case "variable":
-    if(!identifier(v.name)) {
-     errors.push("Hibás változónév: "+v.name);
-    } else {
+
+    if(!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v.name)){
+     errors.push("Hibás változónév.");
+    }else{
+
      const value=v.type==="String"
       ? JSON.stringify(v.value)
       : v.value;
+
      add("global",`${v.type} ${v.name} = ${value};`);
+
     }
+
     break;
 
    case "condition":
-    add("loop",`if (${v.condition}) {\n  // Ide kerülhet további kód\n}`);
+
+    add("loop",
+     `if (${v.condition}) {\n    // Ide kerülhet további kód\n}`
+    );
+
     break;
 
    case "for":
-    if(!/^\d+$/.test(v.count)) {
+
+    if(!/^\d+$/.test(v.count)){
      errors.push("Hibás ciklusszám.");
-    } else {
+    }else{
      add("loop",
-      `for (int i = 0; i < ${v.count}; i++) {\n  // Ciklus tartalma\n}`
+      `for (int i = 0; i < ${v.count}; i++) {\n    // Ciklus tartalma\n}`
      );
     }
+
     break;
+
   }
+
  });
 
- if(errors.length) {
+ if(errors.length){
   alert(errors.join("\n"));
   return;
  }
 
  let code="";
 
- if(globalCode.length) {
+ if(globalCode.length){
   code+=globalCode.join("\n")+"\n\n";
  }
 
  code+="void setup() {\n";
 
- if(setupCode.length) {
-  code+=setupCode.map(x=>"  "+x).join("\n")+"\n";
- }
+ code+=setupCode.map(x=>"  "+x).join("\n");
 
- code+="}\n\nvoid loop() {\n";
+ code+="\n}\n\nvoid loop() {\n";
 
- if(loopCode.length) {
-  code+=loopCode.map(x=>
-   "  "+x.replace(/\n/g,"\n  ")
-  ).join("\n")+"\n";
- }
+ code+=loopCode.map(x=>
+  "  "+x.replace(/\n/g,"\n  ")
+ ).join("\n");
 
- code+="}\n";
+ code+="\n}\n";
 
  document.getElementById("code").textContent=code;
+
 }
 
-function clearAll() {
- if(!confirm("Biztosan törlöd az összes blokkot?")) return;
+function clearAll(){
+
+ if(!confirm("Biztosan törlöd az összes blokkot?"))return;
+
  blocks=[];
  render();
+
  document.getElementById("code").textContent=
   "// Itt jelenik meg a programod.";
+
 }
 
-function copyCode() {
+function copyCode(){
+
  const code=document.getElementById("code").textContent;
 
  navigator.clipboard.writeText(code)
- .then(()=>alert("A kód másolva!"))
- .catch(()=>alert("Nem sikerült a másolás."));
+ .then(()=>alert("Sikeres másolás!"))
+ .catch(()=>alert("A másolás nem sikerült."));
+
 }
 
-function downloadCode() {
+function downloadCode(){
+
  const code=document.getElementById("code").textContent;
+
  const blob=new Blob([code],{type:"text/plain"});
  const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
 
+ const a=document.createElement("a");
  a.href=url;
  a.download="Arduino_program.ino";
  a.click();
 
  URL.revokeObjectURL(url);
+
 }
 
 render();
-</script>
 
+</script>
 </body>
 </html>
