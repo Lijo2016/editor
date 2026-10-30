@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blokkos C++ programozó</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #151923;
+    color: white;
+}
+
+header {
+    background: #252d3c;
+    padding: 18px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 220px 1fr 1fr;
+    gap: 15px;
+    padding: 15px;
+}
+
+.panel {
+    background: #252d3c;
+    border-radius: 12px;
+    padding: 15px;
+    min-height: 500px;
+}
+
+h3 {
+    color: #61dafb;
+}
+
+.block {
+    padding: 13px;
+    margin: 10px 0;
+    border-radius: 8px;
+    cursor: grab;
+    font-weight: bold;
+    user-select: none;
+}
+
+.block:hover {
+    filter: brightness(1.2);
+}
+
+.print { background: #2675c9; }
+.variable { background: #9b59b6; }
+.input { background: #16a085; }
+.condition { background: #d68910; }
+.loop { background: #c0392b; }
+.math { background: #52677e; }
+
+.workspace {
+    min-height: 400px;
+    border: 2px dashed #65758b;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.workspace .block {
+    cursor: default;
+}
+
+button {
+    background: #16a085;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    margin: 5px 2px;
+}
+
+button:hover {
+    background: #1abc9c;
+}
+
+input {
+    width: 85%;
+    padding: 7px;
+    margin-top: 7px;
+    border-radius: 5px;
+    border: none;
+}
+
+pre {
+    background: #10141c;
+    color: #8ee8a1;
+    padding: 15px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    min-height: 300px;
+}
+
+.delete {
+    float: right;
+    background: #c0392b;
+    padding: 5px 9px;
+}
+
+@media(max-width: 800px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>🧩 Blokkos C++ programozó</header>
+
+<div class="container">
+
+<!-- BLOKKOK -->
+<div class="panel">
+<h3>Blokkok</h3>
+
+<div class="block print" draggable="true"
+data-type="print">
+📢 Kiírás (cout)
+</div>
+
+<div class="block variable" draggable="true"
+data-type="variable">
+📦 Változó létrehozása
+</div>
+
+<div class="block input" draggable="true"
+data-type="input">
+⌨️ Bekérés (cin)
+</div>
+
+<div class="block condition" draggable="true"
+data-type="condition">
+❓ Feltétel (if)
+</div>
+
+<div class="block loop" draggable="true"
+data-type="loop">
+🔁 Ciklus (for)
+</div>
+
+<div class="block math" draggable="true"
+data-type="math">
+➕ Összeadás
+</div>
+
+</div>
+
+<!-- MUNKATERÜLET -->
+<div class="panel">
+<h3>Programod</h3>
+
+<div class="workspace" id="workspace">
+<p style="color:#aaa">
+Húzd ide a programozási blokkokat!
+</p>
+</div>
+
+<button onclick="generate()">C++ kód generálása</button>
+<button onclick="clearAll()">Törlés</button>
+</div>
+
+<!-- KÓD -->
+<div class="panel">
+<h3>Generált C++ kód</h3>
+
+<pre id="code">// Itt jelenik meg a C++ kód.</pre>
+
+<button onclick="copyCode()">Kód másolása</button>
+<button onclick="downloadCode()">.cpp letöltése</button>
+</div>
+
+</div>
+
+<script>
+const workspace = document.getElementById("workspace");
+
+let blocks = [];
+
+const templates = {
+    print: {
+        title: "Kiírás",
+        fields: [
+            {name: "text", placeholder: "Kiírandó szöveg", value: "Hello Világ!"}
+        ]
+    },
+
+    variable: {
+        title: "Változó",
+        fields: [
+            {name: "name", placeholder: "Változó neve", value: "szam"},
+            {name: "value", placeholder: "Kezdőérték", value: "10"}
+        ]
+    },
+
+    input: {
+        title: "Bekérés",
+        fields: [
+            {name: "name", placeholder: "Változó neve", value: "szam"}
+        ]
+    },
+
+    condition: {
+        title: "Feltétel",
+        fields: [
+            {name: "condition", placeholder: "Feltétel", value: "szam > 5"},
+            {name: "text", placeholder: "Kiírandó szöveg", value: "Nagyobb mint 5"}
+        ]
+    },
+
+    loop: {
+        title: "For ciklus",
+        fields: [
+            {name: "count", placeholder: "Ismétlések száma", value: "5"}
+        ]
+    },
+
+    math: {
+        title: "Összeadás",
+        fields: [
+            {name: "a", placeholder: "Első szám", value: "5"},
+            {name: "b", placeholder: "Második szám", value: "10"}
+        ]
+    }
+};
+
+document.querySelectorAll(".block[draggable=true]")
+.forEach(block => {
+    block.addEventListener("dragstart", e => {
+        e.dataTransfer.setData(
+            "type", block.dataset.type
+        );
+    });
+});
+
+workspace.addEventListener("dragover", e => {
+    e.preventDefault();
+});
+
+workspace.addEventListener("drop", e => {
+    e.preventDefault();
+
+    const type = e.dataTransfer.getData("type");
+
+    if (!templates[type]) return;
+
+    blocks.push({
+        id: Date.now() + Math.random(),
+        type: type,
+        values: Object.fromEntries(
+            templates[type].fields.map(f => [f.name, f.value])
+        )
+    });
+
+    render();
+});
+
+function render() {
+    workspace.innerHTML = "";
+
+    blocks.forEach((block, index) => {
+        const template = templates[block.type];
+
+        const div = document.createElement("div");
+        div.className = "block " + block.type;
+
+        const title = document.createElement("strong");
+        title.textContent = template.title;
+        div.appendChild(title);
+
+        const remove = document.createElement("button");
+        remove.className = "delete";
+        remove.textContent = "X";
+        remove.onclick = () => {
+            blocks.splice(index, 1);
+            render();
+        };
+        div.appendChild(remove);
+
+        template.fields.forEach(field => {
+            const input = document.createElement("input");
+
+            input.placeholder = field.placeholder;
+            input.value = block.values[field.name];
+
+            input.oninput = () => {
+                block.values[field.name] = input.value;
+            };
+
+            div.appendChild(input);
+        });
+
+        workspace.appendChild(div);
+    });
+}
+
+function generate() {
+    let result = "#include <iostream>\n";
+    result += "using namespace std;\n\n";
+    result += "int main() {\n";
+
+    blocks.forEach(block => {
+        const v = block.values;
+
+        switch(block.type) {
+
+            case "print":
+                result += `    cout << "${v.text}" << endl;\n`;
+                break;
+
+            case "variable":
+                result += `    int ${v.name} = ${v.value};\n`;
+                break;
+
+            case "input":
+                result += `    cin >> ${v.name};\n`;
+                break;
+
+            case "condition":
+                result += `    if (${v.condition}) {\n`;
+                result += `        cout << "${v.text}" << endl;\n`;
+                result += "    }\n";
+                break;
+
+            case "loop":
+                result += `    for (int i = 0; i < ${v.count}; i++) {\n`;
+                result += '        cout << "Ismetles: " << i + 1 << endl;\n';
+                result += "    }\n";
+                break;
+
+            case "math":
+                result += `    cout << (${v.a} + ${v.b}) << endl;\n`;
+                break;
+        }
+    });
+
+    result += "\n    return 0;\n";
+    result += "}\n";
+
+    document.getElementById("code").textContent = result;
+}
+
+function clearAll() {
+    blocks = [];
+    render();
+    document.getElementById("code").textContent =
+        "// Itt jelenik meg a C++ kód.";
+}
+
+function copyCode() {
+    navigator.clipboard.writeText(
+        document.getElementById("code").textContent
+    ).then(() => alert("A kód másolva!"));
+}
+
+function downloadCode() {
+    const code = document.getElementById("code").textContent;
+
+    const blob = new Blob([code], {
+        type: "text/plain"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = "program.cpp";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
